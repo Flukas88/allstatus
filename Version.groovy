@@ -19,7 +19,7 @@ class BVersion {
     private static http  = [:]
     private static appsM = [:]
     // Config Variables
-    private static path        = '/export/apps/appstatus'
+    private static path        = ''
     private static configFile  = "${path}/conf/source.txt"
     private static jmxFile     = "${path}/conf/jmx.txt"
     private static httpFile    = "${path}/conf/http.txt"  
