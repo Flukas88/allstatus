@@ -322,7 +322,7 @@ class BVersion {
 }
 //
 
-def ver = new com.vcint.statusall.BVersion()
+def ver = new me.lucafrancesca.gpack.BVersion()
 
 if (this.args.length == 0) {
   println "Usage is with those args: ENV APP TYPE"
