@@ -121,16 +121,7 @@ class AppVersion {
         def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
         hostMatcher[0][1].split(":")[0]
     }
-     /**
-     * Get the tomcat version from the host string
-     *
-     * @param host The host in question.
-     * @return The tomcat version string.
-     */
-    static TomVer(host) {
-        def tomcatMatcher = host.replaceAll("\\s","") =~ /(.*)[\/](.*)/
-        return tomcatMatcher[0][2]
-    }
+
      /**
      * Get java version
      *
