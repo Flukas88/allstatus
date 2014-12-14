@@ -1,12 +1,13 @@
 #!/usr/bin/env groovy
 // Luca Francesca, 2014
-package com.vcint.statusall
+package me.lucafrancesca.gpack
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory as JmxFactory
 import javax.management.remote.JMXServiceURL as JmxUrl
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import groovy.json.*
+
 /**
 * Main class for the app
 *
