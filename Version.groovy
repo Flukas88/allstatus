@@ -229,7 +229,7 @@ class BVersion {
               def serverInfo    = new GroovyMBean(server, mbeanString).getProperty(versionAttributeName)
               def hostEnv       = getEnv(serverHost)
               writeToallFile("</br><b> At $timeStamp,  <i>$appName</i> has <b>$serverInfo on $serverHost</b></br>")
-              return "</br><b> At $timeStamp,  <i>$appName</i> has <b>$serverInfo on $serverHost</b></br>")
+              return "</br><b> At $timeStamp,  <i>$appName</i> has <b>$serverInfo on $serverHost</b></br>"
            }
            catch(javax.management.InstanceNotFoundException e) { }
            catch(java.io.IOException e) { }
