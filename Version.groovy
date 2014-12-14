@@ -109,7 +109,7 @@ class AppVersion {
      */
     static getEnv(host) {
         def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
-        return hostMatcher[0][1]
+        hostMatcher[0][1]
     }
      /**
      * Get the env from the http host
@@ -178,7 +178,7 @@ class AppVersion {
         }
         return versions
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {}
-        catch (java.lang.IndexOutOfBoundsException e) {}
+          catch (java.lang.IndexOutOfBoundsException e) {}
     }
      /**
      * Get app version via HTTP
@@ -199,9 +199,7 @@ class AppVersion {
      * @return The app string.
      */ 
     static private getJmxVersion(host, port, appName) {
-         def res
-         res = getJmxData(host, port, jmx[appName], appName)
-         return res  
+         def res = getJmxData(host, port, jmx[appName], appName)   
     }
     /**
      * Get JMX data from host
