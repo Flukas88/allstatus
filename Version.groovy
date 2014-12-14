@@ -12,7 +12,7 @@ import groovy.json.*
 * Main class for the app
 *
 */ 
-class BVersion {
+class AppVersion {
     // Variables
     private static timeStamp
     private static jmx   = [:]
@@ -30,7 +30,7 @@ class BVersion {
     * Constructor which loads the jmx and http specific settings and set a timestamp
     *
     */ 
-    public BVersion() {
+    public AppVersion() {
         loadJmxSpecs()
         loadHttpSpecs()
         writeJSon()
@@ -322,7 +322,7 @@ class BVersion {
 }
 //
 
-def ver = new me.lucafrancesca.gpack.BVersion()
+def ver = new me.lucafrancesca.gpack.AppVersion()
 
 if (this.args.length == 0) {
   println "Usage is with those args: ENV APP TYPE"
