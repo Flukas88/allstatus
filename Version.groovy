@@ -225,7 +225,7 @@ class AppVersion {
        } 
 
     /**
-     * Test function (usefull to check) reading from source.txt
+     * Print JMX app versions reading from source.txt
      *
      * @param env The env
      * @param appName The app name.
