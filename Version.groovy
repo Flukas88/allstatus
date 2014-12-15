@@ -102,7 +102,6 @@ class AppVersion {
        ]
        def json = new JsonBuilder(data)
        def fOut = new File(appNameFile)
-      // fOut.delete() // just to be sure
        fOut.write(json.toPrettyString())
     } 
     /**
@@ -185,19 +184,16 @@ class AppVersion {
      */ 
     static private getJmxVersion(host, port, appName) {
         def res 
-	 //try {
          def beanstr
          def propstr
          jmx.each() { el ->
             if ( el.key.split('&')[0] == appName) {
 	    propstr = el.key.split('&')[1] 
             beanstr = el.value 
-        //    println "-- getJmxData($host, $port, $beanstr, $propstr, $appName)"
             res = getJmxData(host, port, beanstr, propstr, appName)
             } else {}
          }
             return res
-         //} catch (groovy.lang.MissingMethodException e) {}
     }
     /**
      * Get JMX data from host
@@ -211,8 +207,6 @@ class AppVersion {
      */ 
     static private getJmxData(serverHost, serverPort, mbeanString, versionAttributeName, appName) {
            try {
-          //    assert (mbeanString != null)
-           //   assert (versionAttributeName != null)
               def serverUrl     = "service:jmx:rmi:///jndi/rmi://$serverHost:$serverPort/jmxrmi"
               def server        = JmxFactory.connect(new JmxUrl(serverUrl)).MBeanServerConnection
               def serverInfo    = new GroovyMBean(server, mbeanString).getProperty(versionAttributeName)
