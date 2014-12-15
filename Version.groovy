@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 // Luca Francesca, 2014
-package com.vcint.statusall
+package me.lucafrancesca.gpack
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory as JmxFactory
 import javax.management.remote.JMXServiceURL as JmxUrl
@@ -19,7 +19,7 @@ class AppVersion {
     private static http  = [:]
     private static appsM = [:]
     // Config Variables
-    private static path        = '/export/apps/appstatus'
+    private static path        = ''
     private static configFile  = "${path}/conf/source.txt"
     private static jmxFile     = "${path}/conf/jmx.txt.new"
     private static httpFile    = "${path}/conf/http.txt"
@@ -310,7 +310,7 @@ class AppVersion {
 }
 //
 
-def ver = new com.vcint.statusall.AppVersion()
+def ver = new me.lucafrancesca.gpack.AppVersion()
 
 if (this.args.length == 0) {
     println "Usage is with those args: ENV APP TYPE"
