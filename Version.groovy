@@ -121,26 +121,6 @@ class AppVersion {
         def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
         hostMatcher[0][1].split(":")[0]
     }
-    
-    /**
-    * Get java version
-    *
-    * @param serverHost The host
-    * @param serverPort The port
-    * @return The version
-    */
-    static private getJavaVersion(serverHost, serverPort) {
-        try {
-            def serverUrl     = "service:jmx:rmi:///jndi/rmi://$serverHost:$serverPort/jmxrmi"
-            def server        = JmxFactory.connect(new JmxUrl(serverUrl)).MBeanServerConnection
-            def javaInfo      = new GroovyMBean(server, 'JMImplementation:type=MBeanServerDelegate').ImplementationVersion
-            def hostEnv       = getEnv(serverHost)
-            writeToallFile("</br><b> At $timeStamp,  Java on <i>$serverHost</i> is <b>$javaInfo</b></br>")
-            return "</br><b>Java on <i>$serverHost</i> is <b>$javaInfo</b></br>"
-        }
-        catch(javax.management.InstanceNotFoundException e) { }
-        catch(java.io.IOException e) { }
-    }
     /**
     * Get app versions via HTTP
     *
