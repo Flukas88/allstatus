@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 // Luca Francesca, 2014
-package me.lucafrancesca.gpack
+package com.vcint.statusall
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory as JmxFactory
 import javax.management.remote.JMXServiceURL as JmxUrl
@@ -19,9 +19,9 @@ class AppVersion {
     private static http  = [:]
     private static appsM = [:]
     // Config Variables
-    private static path        = ''
+    private static path        = '/export/apps/appstatus'
     private static configFile  = "${path}/conf/source.txt"
-    private static jmxFile     = "${path}/conf/jmx.txt"
+    private static jmxFile     = "${path}/conf/jmx.txt.new"
     private static httpFile    = "${path}/conf/http.txt"
     private static appNameFile = "${path}/app.json"
     private static allFile     = "${path}/all.txt"
@@ -45,18 +45,21 @@ class AppVersion {
         def conf
         def string
         def app
+        def prop
+        def appDef
         def jmxSpecsFile = new File(jmxFile)
         jmxSpecsFile.eachLine { line ->
-            conf   = line.split(separator)
-            string = conf[0].replaceAll("\\s","")
-            app    = conf[1].replaceAll("\\s","")
-            jmx.put(app,string)
-            if (appsM.containsValue(app)) {
+            conf         = line.split(separator)
+            string       = conf[0]
+            app          = conf[1]
+            prop         = conf[2]
+            appDef       = app + "&" + prop
+            jmx.put(appDef,string)
+            if (appsM.containsValue(appDef)) {
                 // avoid duplicates
             }
             else{
                 appsM.put(app,app)
-                
             }
         }
     }
@@ -90,7 +93,7 @@ class AppVersion {
     /**
     * Write the JSON for the webGUI
     *
-    * @return Nothing.
+    * @return None.
     */
     private static writeJSon() {
         def data =  [
@@ -121,6 +124,7 @@ class AppVersion {
         def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
         hostMatcher[0][1].split(":")[0]
     }
+    
     /**
     * Get app versions via HTTP
     *
@@ -179,7 +183,20 @@ class AppVersion {
     * @return The app string.
     */
     static private getJmxVersion(host, port, appName) {
-        def res = getJmxData(host, port, jmx[appName], appName)
+        def res
+        //try {
+        def beanstr
+        def propstr
+        jmx.each() { el ->
+            if ( el.key.split('&')[0] == appName) {
+                propstr = el.key.split('&')[1]
+                beanstr = el.value
+                println "-- getJmxData($host, $port, $beanstr, $propstr, $appName)"
+                res = getJmxData(host, port, beanstr, propstr, appName)
+            } else {}
+        }
+        return res
+        //} catch (groovy.lang.MissingMethodException e) {}
     }
     /**
     * Get JMX data from host
@@ -193,6 +210,8 @@ class AppVersion {
     */
     static private getJmxData(serverHost, serverPort, mbeanString, versionAttributeName, appName) {
         try {
+            //    assert (mbeanString != null)
+            //   assert (versionAttributeName != null)
             def serverUrl     = "service:jmx:rmi:///jndi/rmi://$serverHost:$serverPort/jmxrmi"
             def server        = JmxFactory.connect(new JmxUrl(serverUrl)).MBeanServerConnection
             def serverInfo    = new GroovyMBean(server, mbeanString).getProperty(versionAttributeName)
@@ -291,7 +310,7 @@ class AppVersion {
 }
 //
 
-def ver = new me.lucafrancesca.gpack.AppVersion()
+def ver = new com.vcint.statusall.AppVersion()
 
 if (this.args.length == 0) {
     println "Usage is with those args: ENV APP TYPE"
