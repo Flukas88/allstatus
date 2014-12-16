@@ -188,10 +188,12 @@ class AppVersion {
          def propstr
          jmx.each() { el ->
             if ( el.key.split('&')[0] == appName) {
-	    propstr = el.key.split('&')[1] 
-            beanstr = el.value 
-            res = getJmxData(host, port, beanstr, propstr, appName)
-            } else {}
+	           propstr = el.key.split('&')[1] 
+             beanstr = el.value 
+             res = getJmxData(host, port, beanstr, propstr, appName)
+            } else {
+              
+            }
          }
             return res
     }
