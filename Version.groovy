@@ -69,8 +69,6 @@ class AppVersion {
         def hosts = []
         def appList = []
         def tmpHost
-        def strReturn
-        //try {
         new File("H:\\working\\config.txt").each { line ->
             conf                      = line.split('#')
             env                       = conf[0]
@@ -85,7 +83,6 @@ class AppVersion {
             platform2Protocol         = conf[9]
             platform2VersionURI       = conf[10]
             hosts                     = conf[11].split(',') 
-
             if (appName == AppName && env == appEnv) {
                 def conf2 
                 def tmp
@@ -129,11 +126,8 @@ class AppVersion {
                         }
                         appList.add([tmpHost, tmpVersion, platform1Name, platform1Version, platform2Name, platform2Version, clusterName])
                 }
-
             } else { //discard the uneeded clutter 
             }
-                       
-            
         }
         
         def jsonBuilder = new groovy.json.JsonBuilder()
@@ -150,7 +144,4 @@ class AppVersion {
  
 }
 
-
 def ver = new me.lucafrancesca.gpack.AppVersion()
-
-println ver.getData('OMDS', 'prd')
