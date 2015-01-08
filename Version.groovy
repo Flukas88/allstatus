@@ -1,202 +1,17 @@
-#!/usr/bin/env groovy
-// Luca Francesca, 2014
+#!/usr/bin/env groovy -w
+// Luca Francesca, 2015
 package me.lucafrancesca.gpack
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory as JmxFactory
 import javax.management.remote.JMXServiceURL as JmxUrl
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import groovy.json.*
 
-/**
-* Main class for the app
-*
-*/ 
+
 class AppVersion {
-    // Variables
-    private static timeStamp
-    private static jmx   = [:]
-    private static http  = [:]
-    private static appsM = [:]
-    // Config Variables
-    private static path        = '/export/apps/appstatus'
-    private static configFile  = "${path}/conf/source.txt"
-    private static jmxFile     = "${path}/conf/jmx.txt"
-    private static httpFile    = "${path}/conf/http.txt"  
-    private static appNameFile = "${path}/app.json" 
-    private static allFile     = "${path}/all.txt"
-    private static separator   = '@' 
-    /**
-    * Constructor which loads the jmx and http specific settings and set a timestamp
-    *
-    */ 
     public AppVersion() {
-        new File(appNameFile).delete()
-        loadJmxSpecs()
-        loadHttpSpecs()
-        writeJSon()
-        timeStamp = new Date()
     } 
-    /**
-    * Load Jmx configuration map from file jmx.txt
-    *
-    * @return Nothing.
-    */
-    private static loadJmxSpecs() {
-            def conf
-            def string
-            def app
-            def prop 
-            def appDef
-            def jmxSpecsFile = new File(jmxFile)
-            jmxSpecsFile.eachLine { line ->
-            conf         = line.split(separator)
-            string       = conf[0]
-            app          = conf[1]
-            prop         = conf[2]
-            appDef       = app + "&" + prop
-            jmx.put(appDef,string)
-            if (appsM.containsValue(appDef)) {
-                 // avoid duplicates
-            }
-            else{
-              appsM.put(app,app)
-            } 
-        }
-    }   
-    /**
-    * Load Http configuration map from file http.txt
-    *
-    * @return Nothing.
-    */
-    private static loadHttpSpecs() {
-     try {
-             def conf
-             def uri
-             def appName
-             def httpSpecsFile = new File(httpFile)
-             def listForApp = []
-             httpSpecsFile.eachLine { line ->
-                 conf       = line.split(separator)
-                 appName    = conf[0].replaceAll("\\s","")
-                 uri        = conf[1].replaceAll("\\s","")
-                 listForApp.add(uri)
-                 http.put(appName,listForApp)
-                 if (appsM.containsValue(appName)) {
-                   // avoid duplicates
-                 }
-                 else {
-                   appsM.put(appName,appName)
-                 }
-             }
-      } catch (java.lang.ArrayIndexOutOfBoundsException e) {}
-    }    
-     /**
-     * Write the JSON for the webGUI
-     *
-     * @return None.
-     */
-    private static writeJSon() {
-       def data =  [
-             apps:  appsM.collect() {entry -> [(entry.key): entry.value]} 
-       ]
-       def json = new JsonBuilder(data)
-       def fOut = new File(appNameFile)
-       fOut.write(json.toPrettyString())
-    } 
-    /**
-     * Get the env from the host
-     *
-     * @param host The host in question.
-     * @return The host string.
-     */
-    static getEnv(host) {
-        def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
-        hostMatcher[0][1]
-    }
-     /**
-     * Get the env from the http host
-     *
-     * @param host The host in question.
-     * @return The host string.
-     */
-    static getHttpEnv(host) {
-        def hostMatcher = host.replaceAll("\\s","") =~ /[0-9]{2}(.*)/
-        hostMatcher[0][1].split(":")[0]
-    }
 
-    /**
-     * Get app versions via HTTP
-     *
-     * @param appName The name of the app.
-     * @param env The env
-     * @return The version map.
-     */
-    private static HttpVersions(appName, env) {
-        try {
-        def versions = [:]
-        def appVersionsList = [:]
-        def version 
-        def hostMatcher
-        def host
-        def app
-        def uriList = http.get(appName)
-        def appMatcher
-        uriList.each() { element ->
-               // derive host from uri
-               hostMatcher = element  =~ /http\:\/\/(.*)\:[0-9]{2,4}\/(.*)/ 
-               app = hostMatcher[0][2]
-               host = hostMatcher[0][1] 
-               if (app.contains(appName) && getHttpEnv(host) == env) {                
-                   try {
-                       version = new URL(element).getText()
-                   }
-                   catch(UnknownHostException e) { }
-                   catch(FileNotFoundException e) {}
-                   appVersionsList.put(host, version)
-                   versions.put("${appName}", appVersionsList)
-               }
-               else {
-                   return
-               } 
-        }
-        return versions
-        } catch (java.lang.ArrayIndexOutOfBoundsException e) {}
-          catch (java.lang.IndexOutOfBoundsException e) {}
-    }
-     /**
-     * Get app version via HTTP
-     *
-     * @param appName The name of the app.
-     * @param env The env
-     * @return Nothing
-     */
-    static private getHttpVersion(appName, env) {
-        def appVer = HttpVersions(appName, env) // return is the last statement (by groovy default)
-    }
-    /**
-     * Get app version via JMX
-     *
-     * @param host The host name
-     * @param port The app port.
-     * @param appName The name of the app.
-     * @return The app string.
-     */ 
-    static private getJmxVersion(host, port, appName) {
-        def res 
-         def beanstr
-         def propstr
-         jmx.each() { el ->
-            if ( el.key.split('&')[0] == appName) {
-	           propstr = el.key.split('&')[1] 
-             beanstr = el.value 
-             res = getJmxData(host, port, beanstr, propstr, appName)
-            } else {
-              
-            }
-         }
-            return res
-    }
     /**
      * Get JMX data from host
      *
@@ -207,127 +22,135 @@ class AppVersion {
      * @param appName The name of the app. 
      * @return The app string.
      */ 
-    static private getJmxData(serverHost, serverPort, mbeanString, versionAttributeName, appName) {
+    private static getJmxVersion(serverHost, serverPort, mbeanString, versionAttributeName, appName) {
            try {
               def serverUrl     = "service:jmx:rmi:///jndi/rmi://$serverHost:$serverPort/jmxrmi"
               def server        = JmxFactory.connect(new JmxUrl(serverUrl)).MBeanServerConnection
               def serverInfo    = new GroovyMBean(server, mbeanString).getProperty(versionAttributeName)
-              def hostEnv       = getEnv(serverHost)
-              writeToallFile("</br><b> At $timeStamp,  <i>$appName</i> has <b>$serverInfo on $serverHost</b></br>")
-              return "</br><b> At $timeStamp,  <i>$appName</i> has <b>$serverInfo on $serverHost</b></br>"
+              return [serverHost, serverInfo]
            }
-           catch(javax.management.InstanceNotFoundException e) { }
-           catch(java.io.IOException e) { }
-       } 
-
+           catch(Exception e) { }   
+    } 
     /**
-     * Print JMX app versions reading from source.txt
+     * Get HTTP data from URI
      *
-     * @param env The env
-     * @param appName The app name.
-     * @return Nothing
+     * @param  URI The URI 
+     * @return The version.
      */ 
-    static getJmxVersionPrint(env, appName) {
-        def siteFile = new File(configFile)
-        def host
-        def port
+    private static getHttpVersions(URI) {
+        try {
+            new URL(URI).getText(
+)        }
+        catch (Exception e) { }
+    }
+    /**
+     * Get data 
+     *
+     * @param  appName The app name 
+     * @param  appEnv  The app env 
+     * @return The version.
+     */ 
+    public static getData(AppName, appEnv) {
         def conf
-        siteFile.eachLine { line ->
-            conf = line.split(separator)
-            host = conf[0].replaceAll("\\s","")
-            port = conf[1].replaceAll("\\s","")
-            if (getEnv(host) == env) {
-                try {
-                   println getJmxVersion(host, port, appName)
-                 }
-                 catch (NullPointerException e) { }
-                 catch (java.lang.ArrayIndexOutOfBoundsException e) {}
+        def env
+        def appName
+        def clusterName
+        def tmpVersion
+        def platform1Version
+        def platform2Version
+        def appVersionProtocol
+        def appVersionURI
+        def platform1Name
+        def platform1Protocol
+        def platform1VersionURI
+        def platform2Name
+        def platform2Protocol
+        def platform2VersionURI
+        def hosts = []
+        def appList = []
+        def tmpHost
+        def strReturn
+        //try {
+        new File("H:\\working\\config.txt").each { line ->
+            conf                      = line.split('#')
+            env                       = conf[0]
+            appName                   = conf[1]
+            clusterName               = conf[2]
+            appVersionProtocol        = conf[3]
+            appVersionURI             = conf[4]
+            platform1Name             = conf[5]
+            platform1Protocol         = conf[6]
+            platform1VersionURI       = conf[7]
+            platform2Name             = conf[8]
+            platform2Protocol         = conf[9]
+            platform2VersionURI       = conf[10]
+            hosts                     = conf[11].split(',') 
+
+            if (appName == AppName && env == appEnv) {
+                def conf2 
+                def tmp
+                def port        
+                def mbeansString 
+                def mbeansProp   
+                hosts.each { hostApp ->
+                    tmpHost = hostApp
+                    if (appVersionProtocol == "JMX") {
+                        conf2 = appVersionURI.split('@')
+                        port         = conf2[0]
+                        mbeansString = conf2[1]
+                        mbeansProp   = conf2[2]
+                        tmp =  getJmxVersion(hostApp, port, mbeansString, mbeansProp, AppName)
+                        tmpVersion = tmp[1]
+                        } 
+                    else {
+                        tmpVersion =  getHttpVersions(appVersionURI)
+                        }
+                    if (platform1Protocol == "JMX") {
+                        conf = platform1VersionURI.split('@')
+                        port         = conf[0]
+                        mbeansString = conf[1]
+                        mbeansProp   = conf[2]
+                        tmp =  getJmxVersion(hostApp, port, mbeansString, mbeansProp, AppName)
+                        platform1Version = tmp[1]
+                        } 
+                    else {
+                        tmpVersion =  getHttpVersions(platform1VersionURI)
+                        }
+                    if (platform2Protocol == "JMX") {
+                        conf = platform2VersionURI.split('@')
+                        port         = conf[0]
+                        mbeansString = conf[1]
+                        mbeansProp   = conf[2]
+                        tmp =  getJmxVersion(hostApp, port, mbeansString, mbeansProp, AppName)
+                        platform2Version = tmp[1]
+                        } 
+                    else {
+                        tmpVersion = getHttpVersions(platform2VersionURI)
+                        }
+                        appList.add([tmpHost, tmpVersion, platform1Name, platform1Version, platform2Name, platform2Version, clusterName])
+                }
+
+            } else { //discard the uneeded clutter 
             }
+                       
+            
         }
+        
+        def jsonBuilder = new groovy.json.JsonBuilder()
+           jsonBuilder.app(
+                env: env,
+                name: appName,
+                appversion: tmpVersion,
+                hosts: appList.collect {[name: it[0],appversion: it[1],platform1Name: it[2],
+                                        platform1Version: it[3], platform2Name:it[4],
+                                        platform2Version: it[5], memberOf: it[6] ] }
+            )
+       return jsonBuilder.toPrettyString()
     }
-   /**
-     * Pretty print the http versions of an app
-     *
-     * @param appName The app name.
-     * @param env The env.
-     * @return Nothing
-     */     
-    static getHttpVersionPrint(appName, env) {   
-        getHttpVersion(appName, env).each() { key, value ->
-          writeToallFile("</b></br>At $timeStamp, <b>$key</b> has those versions:</b></br>")
-          println "</b></br><b>$key</b> has those versions:</b></br>"
-          value.each() { k, v ->
-             writeToallFile("\t - version $v in host $k</br>")
-             println "\t - version $v in host $k</br>"
-          }
-        }
-    }
-     /**
-     * Print all versions
-     *
-     * @param env The env
-     * @return Nothing
-     */   
-    static printAll(env) {
-         def app
-         appsM.each() { element->
-           app = element.key
-           try {
-               getJmxVersionPrint(env,app)
-           }
-           catch(javax.management.MalformedObjectNameException e) {}
-           catch (java.lang.ArrayIndexOutOfBoundsException e) {}
-           catch (java.lang.IndexOutOfBoundsException e) {}
-        }
-        appsM.each() { element->
-           app = element.key
-           try {
-               getHttpVersionPrint(app,env)
-           }
-           catch(javax.management.MalformedObjectNameException e) {}
-           catch (java.lang.ArrayIndexOutOfBoundsException e) {}
-           catch (java.lang.IndexOutOfBoundsException e) {}
-        }
-    }
-     /**
-     * Write info to a file
-     *
-     * @param content The content to write.
-     * @return Nothing
-     */   
-    private static writeToallFile(content) {
-        new File(allFile).withWriterAppend{ out ->
-            content.each {
-                out << it 
-            }
-        }
-        new File(allFile).append("\n")    
-    }
+ 
+}
 
-}
-//
 
-def ver = new me.lucafrancesca.gpack.AppVersion()
+def ver = new com.vcint.statusall.AppVersion()
 
-if (this.args.length == 0) {
-  println "Usage is with those args: ENV APP TYPE"
-}
-else if (this.args.length == 1){
-   ver.printAll(this.args[0]) 
-}
-else {
-   
-  try {
-  switch (this.args[2]) { // switch on application name
-       case "http":
-           ver.getHttpVersionPrint(this.args[1],this.args[0])
-           break
-       case "jmx":  
-           ver.getJmxVersionPrint(this.args[0],this.args[1])
-           break  
-       default:
-           println "\t Only HTTP or JMX are supported"
-   }  
-  } 
-  catch(java.lang.ArrayIndexOutOfBoundsException e) {} 
-}
+println ver.getData('OMDS', 'prd')
