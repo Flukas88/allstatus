@@ -39,8 +39,7 @@ class AppVersion {
      */ 
     private static getHttpVersions(URI) {
         try {
-            new URL(URI).getText(
-)        }
+            new URL(URI).getText()        }
         catch (Exception e) { }
     }
     /**
