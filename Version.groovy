@@ -39,7 +39,8 @@ class AppVersion {
      */ 
     private static getHttpVersions(URI) {
         try {
-            new URL(URI).getText()        }
+            new URL(URI).getText()        
+        }
         catch (Exception e) { }
     }
     /**
@@ -150,6 +151,6 @@ class AppVersion {
 }
 
 
-def ver = new com.vcint.statusall.AppVersion()
+def ver = new me.lucafrancesca.gpack.AppVersion()
 
 println ver.getData('OMDS', 'prd')
