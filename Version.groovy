@@ -27,8 +27,7 @@ class AppVersion {
               def server        = JmxFactory.connect(new JmxUrl(serverUrl)).MBeanServerConnection
               def serverInfo    = new GroovyMBean(server, mbeanString).getProperty(versionAttributeName)
               return [serverHost, serverInfo]
-           }
-           catch(Exception e) { }   
+           } catch(Exception e) { }   
     } 
     /**
      * Get HTTP data from URI
