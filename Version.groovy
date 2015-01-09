@@ -11,7 +11,6 @@ import java.util.regex.Pattern
 class AppVersion {
     public AppVersion() {
     } 
-
     /**
      * Get JMX data from host
      *
@@ -40,8 +39,7 @@ class AppVersion {
     private static getHttpVersions(URI) {
         try {
             new URL(URI).getText()        
-        }
-        catch (Exception e) { }
+        } catch (Exception e) { }
     }
     /**
      * Get data 
@@ -145,3 +143,4 @@ class AppVersion {
 }
 
 def ver = new me.lucafrancesca.gpack.AppVersion()
+println ver.getData(this.args[0], this.args[1])
