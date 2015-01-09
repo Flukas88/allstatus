@@ -132,10 +132,10 @@ class AppVersion {
         
         def jsonBuilder = new groovy.json.JsonBuilder()
            jsonBuilder.app(
-                env: env,
-                name: appName,
-                appversion: tmpVersion,
-                hosts: appList.collect {[name: it[0],appversion: it[1],platform1Name: it[2],
+                "env": env,
+                "name": appName,
+                "appversion": tmpVersion,
+                "hosts": appList.collect {[name: it[0],appversion: it[1],platform1Name: it[2],
                                         platform1Version: it[3], platform2Name:it[4],
                                         platform2Version: it[5], memberOf: it[6] ] }
             )
