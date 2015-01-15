@@ -84,7 +84,7 @@ class AppVersion {
               platform2Name             = conf[8]
               platform2Protocol         = conf[9]
               platform2VersionURI       = conf[10]
-              hosts                     = conf[11].split(',') 
+              hosts                     = conf[11].trim().split(',') 
               if (appName == AppName && env == appEnv) {
                   def conf2 
                   def tmp
