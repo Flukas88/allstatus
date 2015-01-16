@@ -72,7 +72,7 @@ class AppVersion {
         def strReturn
         try {
           new File("/export/apps/appstatus/config.txt").each { line ->
-              conf                      = line.split('#')
+              conf                      = line.trim().split('#')
               env                       = conf[0]
               appName                   = conf[1]
               clusterName               = conf[2]
@@ -137,8 +137,8 @@ class AppVersion {
         
         def jsonBuilder = new groovy.json.JsonBuilder()
            jsonBuilder.app(
-                "env": env,
-                "name": appName,
+                "env": appEnv,
+                "name": AppName,
                 "appversion": tmpVersion,
                 "hosts": appList.collect {[name: it[0],appversion: it[1],platform1Name: it[2],
                                         platform1Version: it[3], platform2Name:it[4],
